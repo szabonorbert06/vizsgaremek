@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2026. Már 10. 13:23
+-- Létrehozás ideje: 2026. Már 22. 21:05
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -44,7 +44,8 @@ CREATE TABLE `bookings` (
 INSERT INTO `bookings` (`id`, `user_id`, `car_id`, `date_from`, `date_to`, `status`, `total_price`) VALUES
 (1, 1, 1, '2025-05-01', '2025-05-05', 'confirmed', 240.00),
 (2, 2, 3, '2025-06-10', '2025-06-15', 'pending', 120.00),
-(3, 3, 5, '2025-07-01', '2025-07-03', 'completed', 360.00);
+(3, 3, 5, '2025-07-01', '2025-07-03', 'completed', 360.00),
+(4, 4, 1, '2026-04-01', '2026-04-05', 'confirmed', 100000.00);
 
 -- --------------------------------------------------------
 
@@ -122,6 +123,54 @@ INSERT INTO `maintenance_records` (`id`, `car_id`, `description`, `date`, `cost`
 -- --------------------------------------------------------
 
 --
+-- Tábla szerkezet ehhez a táblához `migrations`
+--
+
+CREATE TABLE `migrations` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `migration` varchar(255) NOT NULL,
+  `batch` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- A tábla adatainak kiíratása `migrations`
+--
+
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
+(1, '2019_12_14_000001_create_personal_access_tokens_table', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `personal_access_tokens`
+--
+
+CREATE TABLE `personal_access_tokens` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `tokenable_type` varchar(255) NOT NULL,
+  `tokenable_id` bigint(20) UNSIGNED NOT NULL,
+  `name` text NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `abilities` text DEFAULT NULL,
+  `last_used_at` timestamp NULL DEFAULT NULL,
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- A tábla adatainak kiíratása `personal_access_tokens`
+--
+
+INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`, `created_at`, `updated_at`) VALUES
+(1, 'App\\Models\\User', 4, 'api-token', 'b7cb3ee8574e5bf554dd98a1b68833903b7f754c86509c7be7c2749db7184c29', '[\"*\"]', NULL, NULL, '2026-03-22 17:15:13', '2026-03-22 17:15:13'),
+(3, 'App\\Models\\User', 4, 'api-token', 'ee13d80b45b8d731e40ad053fef7043d10afa9a941f0fbd045a08ac917d2ad1d', '[\"*\"]', NULL, NULL, '2026-03-22 17:26:53', '2026-03-22 17:26:53'),
+(4, 'App\\Models\\User', 4, 'api-token', '58ea4ec7adf09b543a794ed94e0ac69d8d04e7ec6ca6413702d89720d6eadcc0', '[\"*\"]', '2026-03-22 18:17:15', NULL, '2026-03-22 18:05:03', '2026-03-22 18:17:15'),
+(5, 'App\\Models\\User', 5, 'api-token', '5c56496cbe39534e3dc523e371bdbfa6cae1716e1e4390a24f15b78d05cfd612', '[\"*\"]', NULL, NULL, '2026-03-22 18:24:11', '2026-03-22 18:24:11');
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `users`
 --
 
@@ -130,17 +179,20 @@ CREATE TABLE `users` (
   `name` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
-  `password_hash` varchar(255) DEFAULT NULL
+  `password_hash` varchar(255) DEFAULT NULL,
+  `is_admin` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- A tábla adatainak kiíratása `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `phone`, `password_hash`) VALUES
-(1, 'Peter Kiss', 'peter.kiss@email.com', '+3612345678', 'hash123'),
-(2, 'Anna Kovacs', 'anna.kovacs@email.com', '+3620123456', 'hash456'),
-(3, 'David Nagy', 'david.nagy@email.com', NULL, NULL);
+INSERT INTO `users` (`id`, `name`, `email`, `phone`, `password_hash`, `is_admin`) VALUES
+(1, 'Peter Kiss', 'peter.kiss@email.com', '+3612345678', 'hash123', 0),
+(2, 'Anna Kovacs', 'anna.kovacs@email.com', '+3620123456', 'hash456', 0),
+(3, 'David Nagy', 'david.nagy@email.com', NULL, NULL, 0),
+(4, 'Updated Name', 'test@test.com', '123456789', '$2y$12$FT5qUxtL7pcfBDrInT94gu.ZniEeMOIhegK.qiVmOEnUCZkp35EZW', 1),
+(5, 'Test User2', 'test2@test.com', NULL, '$2y$12$bs4WdDewadz.IGvKmv.eKecfkLDBH95aqrioE6es.PdPvc9OsYQMi', 0);
 
 -- --------------------------------------------------------
 
@@ -161,7 +213,8 @@ CREATE TABLE `user_licenses` (
 
 INSERT INTO `user_licenses` (`id`, `user_id`, `license_number`, `expiration_date`) VALUES
 (1, 1, 'ABC123456', '2028-05-10'),
-(2, 2, 'XYZ987654', '2027-11-22');
+(2, 2, 'XYZ987654', '2027-11-22'),
+(3, 4, 'AB-123456', '2028-01-01');
 
 --
 -- Indexek a kiírt táblákhoz
@@ -196,6 +249,21 @@ ALTER TABLE `maintenance_records`
   ADD KEY `car_id` (`car_id`);
 
 --
+-- A tábla indexei `migrations`
+--
+ALTER TABLE `migrations`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `personal_access_tokens`
+--
+ALTER TABLE `personal_access_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
+  ADD KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`),
+  ADD KEY `personal_access_tokens_expires_at_index` (`expires_at`);
+
+--
 -- A tábla indexei `users`
 --
 ALTER TABLE `users`
@@ -216,7 +284,7 @@ ALTER TABLE `user_licenses`
 -- AUTO_INCREMENT a táblához `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT a táblához `cars`
@@ -237,16 +305,28 @@ ALTER TABLE `maintenance_records`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT a táblához `migrations`
+--
+ALTER TABLE `migrations`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT a táblához `personal_access_tokens`
+--
+ALTER TABLE `personal_access_tokens`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
 -- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT a táblához `user_licenses`
 --
 ALTER TABLE `user_licenses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Megkötések a kiírt táblákhoz
