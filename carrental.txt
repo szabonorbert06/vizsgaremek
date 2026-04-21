@@ -1,0 +1,137 @@
+  Az alkalmazás váza (App.vue)
+  Minden oldalt egy rögzített sötét navigációs sávval és egy lábléccel vesz körül. A navbar bal oldalán a DriveSelect logó látható, középen a navigációs linkek (Főoldal, Autóink,      
+  Foglalás, Rólunk, Kapcsolat), jobb oldalon pedig a bejelentkezési gombok. Kijelentkezett    
+  felhasználóknak Belépés és Regisztráció gombok jelennek meg; bejelentkezett felhasználóknak
+  a nevük (a profil oldalra mutat), egy Kilépés gomb, és adminoknak egy ADMIN gomb. A
+  munkamenet állapota (token + felhasználói adatok) localStorage-ban tárolódik, így az oldal  
+  frissítése után is bejelentkezve maradsz. Kijelentkezéskor a rendszer meghívja a backend    
+  /logout végpontot, törli a localStorage-t, és átirányít a /login oldalra. Az útvonalvédők   
+  automatikusan visszairányítják a nem hitelesített felhasználókat a /booking és /profile     
+  oldalakról, a nem adminokat pedig az /admin oldalról.
+
+  Főoldal (/)
+
+  Kizárólag vizuális célú nyitóoldal. Teljes képernyős hero szekció egy autós háttérképpel,   
+  egy nagy "PRÉMIUM AUTÓK" felirattal, alcímmel, és két CTA gombbal - az egyik a /cars        
+  (Autóink), a másik a /about (Rólunk) oldalra mutat. Nem történik adatlekérés.
+
+  Autóink (/cars)
+
+  Betöltéskor lekéri az összes autót a GET /cars végpontról, és reszponzív kártyarácsban      
+  jeleníti meg őket (XL-en 4, LG-n 3, MD-n 2, mobilon 1 oszlop). Minden kártya tartalmazza az 
+  autó képét, kategória jelvényt, nevet, rövid leírást, üzemanyag típust, váltót és napi árat.
+   Rámutatáskor a kártyák kiemelkednek sárga szegéllyel.
+
+  A szűrés az API-nak átadott lekérdezési paraméterekkel történik: szöveges keresés
+  (márka/modell alapján), kategória legördülő (dinamikusan töltődik be a betöltött autókból), 
+  és egy elérhetőségi kapcsoló. Egy visszaállítás gomb törli az összes szűrőt.
+
+  A viselkedés a bejelentkezési állapottól függ: kijelentkezett felhasználóknak "Megtekintés" 
+  gomb jelenik meg, ami megnyit egy részletes modális ablakot egy "Bejelentkezés a
+  foglaláshoz" linkkel; bejelentkezett felhasználóknak "Foglalás" gomb van, ami a
+  /booking/:carName oldalra navigál, és automatikusan előre kiválasztja az adott autót.       
+
+  Bejelentkezés (/login)
+
+  E-mail és jelszó űrlap. A POST /login végpontra küld a Pinia auth store-on keresztül, ami   
+  elmenti a kapott tokent és felhasználói adatokat az állapotba és a localStorage-ba. Sikeres 
+  bejelentkezés után a főoldalra irányít. Hiba esetén az API hibaüzenetét, vagy egy általános 
+  visszajelzést jelenít meg.
+
+  Regisztráció (/register)
+
+  Bekéri a nevet, e-mail címet, jelszót, jelszó megerősítést, telefonszámot, jogosítvány      
+  számát és lejárati dátumát. A POST /register végpontra küld. Siker esetén automatikusan     
+  bejelentkezteti a felhasználót (token + adatok elmentve) és a főoldalra irányít. A
+  jogosítvány mezők itt nem kötelezők - később a profil oldalon is kitölthetők.
+
+  Rólunk (/about)
+
+  Statikus tájékoztató oldal, öt szekcióra osztva:
+
+  - Kik vagyunk - bevezető szöveg a DriveSelectről mint 2015 óta működő budapesti prémium     
+  autókölcsönzőről, a járműkínálatról és tapasztalatról
+  - Statisztikák - négy statisztika kártya: 10+ év tapasztalat, 50+ prémium jármű, 5000+      
+  elégedett ügyfél, 24/7 ügyfélszolgálat
+  - Miért válassz minket - négy jellemző kártya: karbantartott prémium flotta, átlátható      
+  árazás (rejtett díjak nélkül), egyszerű online foglalás, biztonság és biztosítás
+  - Hogyan működik - négy számozott lépés: regisztrálj → válassz autót → küldj foglalást →    
+  vedd át és vezess
+  - CTA gombok alul, a /cars és /contact oldalakra mutatva
+
+  Nem történik adatlekérés, teljesen statikus oldal.
+
+  Kapcsolat (/contact)
+
+  Kétoszlopos elrendezés. A bal oszlopban a cég fizikai elérhetőségei láthatók (Budapest,     
+  Andrássy út 12.), telefonszám, e-mail cím és nyitvatartás. A jobb oszlopban egy
+  kapcsolatfelvételi űrlap van névvel, e-maillel, tárggyal és üzenet mezővel. Megjegyzés: az  
+  űrlap valójában nem küld semmit a backendnek - elküldéskor csak egy helyi sent változó vált 
+  át, és megjelenik egy sikeres üzenet. Ez egy UI mockup, mögötte nincs API hívás.
+
+  Foglalás (/booking/:carName?)
+
+  Útvonalvédővel védett - ha nincs bejelentkezve a felhasználó, a bejelentkezési oldalra      
+  irányít. Betöltéskor párhuzamosan lekéri az autólistát és a felhasználó profilját. Ha a     
+  profilból hiányzik a telefonszám vagy a jogosítvány, az egész űrlap elrejtődik és egy       
+  figyelmeztetés jelenik meg a hiányzó adatokkal, valamint egy link a profil oldalra.
+
+  Ha a profil teljes, az űrlap tartalmaz: egy autó legördülőt (minden autó, márka + modell +  
+  napi ár megjelenítéssel), átvételi és leadási dátumválasztót (a leadás minimuma az átvétel  
+  dátuma), és egy élő végösszeget, ami amint mindkét dátum ki van töltve automatikusan        
+  megjelenik (napok száma × napi ár). Ha az Autóink oldalról érkeztél a "Foglalás" gombbal, a 
+  :carName URL paraméter alapján az autó automatikusan előre kiválasztódik. Elküldéskor a POST
+   /bookings végpontra küld, és a foglalás pending státusszal jön létre. Siker esetén
+  visszajelzés jelenik meg és az űrlap alaphelyzetbe áll.
+
+  Profil (/profile)
+
+  Útvonalvédővel védett. Betöltéskor párhuzamosan lekéri a felhasználói profilt és az összes  
+  foglalást.
+
+  Felső szekció - személyes adatok: A név és az e-mail cím csak olvasható. A telefonszámnál   
+  van egy helyi szerkesztési mód ("Szerkesztés" gombra kattintva megjelenik egy beviteli mező 
+  Mentés/Mégse gombokkal). A jogosítvány száma és lejárata szintén szerkeszthető/hozzáadható  
+  ugyanígy. Mindkettő azonnal elmenti az adatokat a backendre és helyben frissíti a
+  megjelenített értékeket oldal újratöltés nélkül.
+
+  Alsó szekció - foglalások táblázata: Felsorolja a felhasználó összes foglalását az autó     
+  nevével, átvételi/leadási dátumokkal, végösszeggel és egy színkódolt státusz jelvénnyel     
+  (sárga = függőben, zöld = megerősítve, piros = lemondva, szürke = teljesítve). A függőben   
+  lévő foglalásokhoz tartozik egy "Lemondás" gomb, ami meghívja a PUT /bookings/{id}/cancel   
+  végpontot és azonnal frissíti a státusz jelvényt oldal újratöltés nélkül.
+
+  Admin panel (/admin)
+
+  Mindkét útvonalvédővel védett (bejelentkezés és admin jog szükséges). Füles elrendezés — egy
+   fülre kattintva az aktív komponens cserélődik le navigáció nélkül.
+
+  Felhasználók fül (AdminUsers)
+
+  Az összes felhasználót lekéri a GET /admin/users végpontról a jogosítvány relációval együtt.
+   A táblázat tartalmazza az azonosítót, nevet, e-mailt, telefonszámot, jogosítvány számát és 
+  egy admin státusz jelvényt. Soronként két művelet: Admin jogok kezelése (megerősítés után   
+  rangot ad vagy vesz el, a jelvényt helyben frissíti) és Törlés (csak nem admin
+  felhasználóknál látható, megerősítés után eltávolítja a sort).
+
+  Foglalások fül (AdminBookings)
+
+  Az összes foglalást lekéri a GET /admin/bookings végpontról, felhasználó és autó relációkkal
+   együtt. Minden sorban egy beépített státusz <select> legördülő van. Változtatáskor
+  megerősítő párbeszédablak jelenik meg - elfogadás esetén meghívja a PUT /admin/bookings/{id}
+   végpontot. Megerősítve státusz esetén az autó elérhetetlenné válik (available = false);    
+  Lemondva vagy Teljesítve esetén az autó újra elérhetővé válik (available = true).
+
+  Autók fül (AdminCars)
+
+  Betöltéskor párhuzamosan lekéri az összes autót és helyszínt. A táblázat tartalmazza az     
+  azonosítót, márkát, modellt, kategóriát, üzemanyagot, váltót, napi árat és egy elérhetőségi 
+  jelvényt. A Szerk. gomb megnyitja az előre kitöltött modális ablakot; a Törlés megerősítés  
+  után eltávolítja a sort.
+
+  A hozzáadás/szerkesztés modális ablak mezői: márka (szöveg), modell (szöveg), kategória     
+  (legördülő: Sedan/SUV/Kombi/Sport/Supercar), üzemanyag (legördülő:
+  Benzin/Dízel/Elektromos/Hibrid), váltó (legördülő: Manuális/Automata), napi ár (szám),      
+  képfeltöltés élő előnézettel, leírás (szövegdoboz), helyszín (legördülő az API-ból), és egy 
+  elérhetőség jelölőnégyzet. FormData-t használ a kéréshez a fájlfeltöltés támogatása miatt.  
+  Az API validációs hibák az űrlap mezői alatt jelennek meg.
