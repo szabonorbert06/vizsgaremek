@@ -1,10 +1,7 @@
 ## A DRIVESELECT weboldal fejlesztői: Hoffmann Ádám, Szabó Norbert
 ## Admin user --> e-mail: admin@admin.com    jelszó: admin1234
-## Példa user-ek az oldal teszteléséhez:
-- 1. e-mail: teszt1@blathy.info    jelszó: teszt1234
-- 2. e-mail: pelda1@blathy.info    jelszó: pelda1234
-
-
+## Példa user az oldal teszteléséhez:
+- e-mail: testmail@mail.info    jelszó: test1234
 
 # Függőségek:
 
